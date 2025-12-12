@@ -92,7 +92,7 @@ function toNumericSeries(points: TimeSeriesPoint[]): number[] {
  * Run AutoARIMA + forecast n steps into the future
  *
  * @param points Time series data (cleaned, evenly spaced)
- * @param steps Number of forecast steps (e.g., 14 days ahead)
+ * @param steps Number of forecast steps (e.g., 11 days ahead)
  * @param options ARIMA configuration options
  */
 function runAutoArimaForecast(
@@ -195,8 +195,8 @@ async function main() {
     const points = loadCsvTimeSeries(csvPath);
     console.log(`Loaded ${points.length} points from ${csvPath}`);
 
-    console.log("🔹 Running AutoARIMA + forecast 14 days...");
-    const result = runAutoArimaForecast(points, 10, {
+    console.log("🔹 Running AutoARIMA + forecast 11 days...");
+    const result = runAutoArimaForecast(points, 11, {
       seasonal: true,
       seasonalPeriod: 7, // unit is cycle, e.g. if data is daily, seasonalPeriod is 7 days, if data is hourly, seasonalPeriod is 7 hours,
       verbose: false,
@@ -212,7 +212,7 @@ async function main() {
       );
     });
 
-    console.log("\n=== Forecast (next 14 days) ===");
+    console.log("\n=== Forecast (next 11 days) ===");
     result.forecast.forEach((f) => {
       console.log(
         `${f.date.toISOString().slice(0, 10)} -> ` +
