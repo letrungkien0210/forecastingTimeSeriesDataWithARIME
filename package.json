@@ -1,0 +1,32 @@
+{
+  "name": "forecastingtimeseriesdatawitharime",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/forecast-arima.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/forecast-arima.js",
+    "dev": "ts-node forecast-arima.ts",
+    "clean": "rm -rf dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/letrungkien0210/forecastingTimeSeriesDataWithARIME.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/letrungkien0210/forecastingTimeSeriesDataWithARIME/issues"
+  },
+  "homepage": "https://github.com/letrungkien0210/forecastingTimeSeriesDataWithARIME#readme",
+  "devDependencies": {
+    "@types/node": "^25.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "arima": "^0.2.5"
+  }
+}
