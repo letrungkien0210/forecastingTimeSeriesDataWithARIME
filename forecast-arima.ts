@@ -134,8 +134,20 @@ function runAutoArimaForecast(
     verbose,
   };
 
+  const arimaOptionsNotSeasonal = {
+    auto: true, // Enable AutoARIMA
+    // Max order for search (relatively chosen, you can adjust)
+    p: 2,
+    d: 1,
+    q: 2,
+    P: 0,
+    D: 0,
+    Q: 0,
+    s: 0
+  };
+
   // Initialize and fit the model
-  const autoarima = new ARIMA(arimaOptions).fit(series);
+  const autoarima = new ARIMA(arimaOptionsNotSeasonal).fit(series);
 
   // Forecast `steps` steps into the future
   const [pred, errors]: [number[], number[]] = autoarima.predict(steps);
