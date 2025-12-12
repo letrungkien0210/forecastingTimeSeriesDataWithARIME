@@ -9,6 +9,8 @@ import path from "path";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ARIMA = require("arima");
 
+
+const trainingDataPath = "./data/trainningData-grouped-by-day.csv";
 /**
  * Defines the structure of a single time series point
  */
@@ -58,8 +60,6 @@ function loadCsvTimeSeries(csvPath: string): TimeSeriesPoint[] {
   // Skip header if present
   const [firstLine, ...dataLines] = lines;
   const hasHeader =
-    firstLine.toLowerCase().includes("date") ||
-    firstLine.toLowerCase().includes("value") ||
     firstLine.toLowerCase().includes("timepoint") ||
     firstLine.toLowerCase().includes("usage");
 
@@ -189,16 +189,16 @@ function runAutoArimaForecast(
 async function main() {
   try {
     // CSV file path - update this if your file is in a different location
-    const csvPath = "./data/trainningData.csv";
+    const csvPath = trainingDataPath;
 
     console.log("🔹 Loading CSV...");
     const points = loadCsvTimeSeries(csvPath);
     console.log(`Loaded ${points.length} points from ${csvPath}`);
 
     console.log("🔹 Running AutoARIMA + forecast 14 days...");
-    const result = runAutoArimaForecast(points, 14, {
+    const result = runAutoArimaForecast(points, 10, {
       seasonal: true,
-      seasonalPeriod: 7, // daily data with weekly seasonality
+      seasonalPeriod: 7, // unit is cycle, e.g. if data is daily, seasonalPeriod is 7 days, if data is hourly, seasonalPeriod is 7 hours,
       verbose: false,
     });
 
