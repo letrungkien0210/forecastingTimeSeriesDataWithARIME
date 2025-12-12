@@ -189,7 +189,7 @@ function runAutoArimaForecast(
 async function main() {
   try {
     // CSV file path - update this if your file is in a different location
-    const csvPath = "./trainningData.csv";
+    const csvPath = "./data/trainningData.csv";
 
     console.log("🔹 Loading CSV...");
     const points = loadCsvTimeSeries(csvPath);
