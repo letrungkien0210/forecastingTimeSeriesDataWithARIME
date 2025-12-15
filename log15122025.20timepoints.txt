@@ -1,0 +1,75 @@
+
+> forecastingtimeseriesdatawitharime@1.0.0 dev
+> ts-node forecast-arima.ts
+
+🔹 Loading CSV...
+Loaded 20 points from ./data/trainningData-grouped-by-day.csv
+🔹 Running AutoARIMA + forecast 11 days...
+0.05 
+p: 2 d: 0 q: 2 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 1.79769e+308 
+p: 0 d: 0 q: 0 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 200.392 
+p: 1 d: 0 q: 0 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 201.686 
+p: 0 d: 0 q: 1 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 202.449 
+p: 0 d: 0 q: 0 P: 0 D: 0 Q: 0 Drift/Mean: 0 ic: 267.592 
+p: 1 d: 0 q: 1 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 181.831 
+p: 2 d: 0 q: 1 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 184.946 
+p: 1 d: 0 q: 2 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 1.79769e+308 
+p: 0 d: 0 q: 2 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 1.79769e+308 
+p: 2 d: 0 q: 0 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 204.731 
+
+ AutoARIMA summary: 
+
+
+ Exit Status 
+Return Code : 1 
+Exit Message : Probable Success
+
+  ARIMA Seasonal Order : ( 1, 0, 1) * (0, 0, 0) 
+
+Coefficients        Value               Standard Error       
+
+AR1              -0.607499           0.197528             
+MA1              -1                  0.142269             
+
+MEAN             181.493             7.93489              
+TREND            0                    
+
+SIGMA^2          966.164              
+
+ESTIMATION METHOD : CSS-MLE
+
+OPTIMIZATION METHOD : L-BFGS
+
+AIC criterion : 200.746 
+
+BIC criterion : 204.729 
+
+AICC criterion : 203.413 
+
+Log Likelihood : -96.373 
+
+Auto ARIMA Parameters 
+
+Approximation: TRUE 
+=== Model Info (search bounds, auto=true) ===
+{ auto: true, p: 2, d: 1, q: 2, P: 0, D: 0, Q: 0, s: 0 }
+
+=== Last 5 history points ===
+2025-10-16 -> 193.900
+2025-10-17 -> 187.500
+2025-10-18 -> 166.000
+2025-10-19 -> 97.000
+2025-10-20 -> 163.600
+
+=== Forecast (next 11 days) ===
+2025-10-21 -> pred=191.793, error≈855.322
+2025-10-22 -> pred=175.237, error≈960.335
+2025-10-23 -> pred=185.294, error≈999.091
+2025-10-24 -> pred=179.184, error≈1013.394
+2025-10-25 -> pred=182.896, error≈1018.673
+2025-10-26 -> pred=180.641, error≈1020.621
+2025-10-27 -> pred=182.011, error≈1021.340
+2025-10-28 -> pred=181.179, error≈1021.605
+2025-10-29 -> pred=181.684, error≈1021.703
+2025-10-30 -> pred=181.377, error≈1021.739
+2025-10-31 -> pred=181.564, error≈1021.752

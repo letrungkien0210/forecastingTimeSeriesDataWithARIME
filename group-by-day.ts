@@ -78,8 +78,8 @@ function groupUsageByDay(inputPath: string, outputPath: string): void {
 }
 
 // Run the script
-const inputFile = "./data/testingData.csv";
-const outputFile = "./data/testingData-grouped-by-day.csv";
+const inputFile = "./data/two_months/trainningData.csv";
+const outputFile = "./data/two_months/trainningData-grouped-by-day.csv";
 
 groupUsageByDay(inputFile, outputFile);
 

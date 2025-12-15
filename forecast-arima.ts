@@ -10,7 +10,7 @@ import path from "path";
 const ARIMA = require("arima");
 
 
-const trainingDataPath = "./data/trainningData-grouped-by-day.csv";
+const trainingDataPath = "./data/two_months/trainningData-grouped-by-day.csv";
 /**
  * Defines the structure of a single time series point
  */
@@ -98,16 +98,16 @@ function toNumericSeries(points: TimeSeriesPoint[]): number[] {
 function runAutoArimaForecast(
   points: TimeSeriesPoint[],
   steps: number,
-  options?: {
+  _options?: {
     // Whether to include seasonality (e.g., daily data with weekly pattern)
     seasonal?: boolean;
     seasonalPeriod?: number; // e.g., 7 for weekly, 24 for hourly-with-daily-seasonality
     verbose?: boolean;
   }
 ): ForecastResult {
-  const seasonal = options?.seasonal ?? true;
-  const seasonalPeriod = options?.seasonalPeriod ?? 7; // default: weekly pattern
-  const verbose = options?.verbose ?? false;
+  // const seasonal = options?.seasonal ?? true;
+  // const seasonalPeriod = options?.seasonalPeriod ?? 7; // default: weekly pattern
+  // const verbose = options?.verbose ?? false;
 
   const series = toNumericSeries(points);
 
@@ -121,18 +121,18 @@ function runAutoArimaForecast(
   //   const [pred, errors] = autoarima.predict(12)  [oai_citation:1‡GitHub](https://github.com/zemlyansky/arima)
   //
   // Here we set max p,d,q,P,D,Q to avoid too large search space.
-  const arimaOptions = {
-    auto: true, // Enable AutoARIMA
-    // Max order for search (relatively chosen, you can adjust)
-    p: 5,
-    d: 2,
-    q: 5,
-    P: seasonal ? 2 : 0,
-    D: seasonal ? 1 : 0,
-    Q: seasonal ? 2 : 0,
-    s: seasonal ? seasonalPeriod : 0,
-    verbose,
-  };
+  // const arimaOptions = {
+  //   auto: true, // Enable AutoARIMA
+  //   // Max order for search (relatively chosen, you can adjust)
+  //   p: 5,
+  //   d: 2,
+  //   q: 5,
+  //   P: seasonal ? 2 : 0,
+  //   D: seasonal ? 1 : 0,
+  //   Q: seasonal ? 2 : 0,
+  //   s: seasonal ? seasonalPeriod : 0,
+  //   verbose,
+  // };
 
   const arimaOptionsNotSeasonal = {
     auto: true, // Enable AutoARIMA
@@ -179,13 +179,13 @@ function runAutoArimaForecast(
 
   const modelInfo: ForecastResult["modelInfo"] = {
     auto: true,
-    p: arimaOptions.p,
-    d: arimaOptions.d,
-    q: arimaOptions.q,
-    P: arimaOptions.P,
-    D: arimaOptions.D,
-    Q: arimaOptions.Q,
-    s: arimaOptions.s,
+    p: arimaOptionsNotSeasonal.p,
+    d: arimaOptionsNotSeasonal.d,
+    q: arimaOptionsNotSeasonal.q,
+    P: arimaOptionsNotSeasonal.P,
+    D: arimaOptionsNotSeasonal.D,
+    Q: arimaOptionsNotSeasonal.Q,
+    s: arimaOptionsNotSeasonal.s,
   };
 
   return {
