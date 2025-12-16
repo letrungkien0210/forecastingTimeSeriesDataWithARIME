@@ -1,0 +1,5 @@
+
+> forecastingtimeseriesdatawitharime@1.0.0 dev
+> ts-node forecast-arima.ts
+
+🔹 Loading CSV...

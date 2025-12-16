@@ -1,0 +1,81 @@
+
+> forecastingtimeseriesdatawitharime@1.0.0 dev
+> ts-node forecast-arima.ts
+
+🔹 Loading CSV...
+Loaded 81 points from ./data/3_months/trainningData-grouped-by-day.csv
+🔹 Running AutoARIMA + forecast 11 days...
+0.05 
+p: 2 d: 1 q: 2 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 1.79769e+308 
+p: 0 d: 1 q: 0 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 831.267 
+p: 1 d: 1 q: 0 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 826.071 
+p: 0 d: 1 q: 1 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 814.289 
+p: 0 d: 1 q: 0 P: 0 D: 0 Q: 0 Drift/Mean: 0 ic: 829.183 
+p: 1 d: 1 q: 1 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 804.286 
+p: 2 d: 1 q: 1 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 806.141 
+p: 1 d: 1 q: 2 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 1.79769e+308 
+p: 0 d: 1 q: 2 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 1.79769e+308 
+p: 2 d: 1 q: 0 P: 0 D: 0 Q: 0 Drift/Mean: 1 ic: 825.738 
+
+ AutoARIMA summary: 
+
+
+ Exit Status 
+Return Code : 1 
+Exit Message : Probable Success
+
+  ARIMA Seasonal Order : ( 1, 1, 1) * (0, 0, 0) 
+
+Coefficients        Value               Standard Error       
+
+AR1              0.358233            0.10614              
+MA1              1                   0.0436745            
+
+MEAN             0                    
+TREND            0                    
+EXOG             1.1427              0.266156             
+
+SIGMA^2          1397.17              
+
+ESTIMATION METHOD : CSS-MLE
+
+OPTIMIZATION METHOD : L-BFGS
+
+AIC criterion : 815.007 
+
+BIC criterion : 824.536 
+
+AICC criterion : 815.541 
+
+Log Likelihood : -403.504 
+
+Auto ARIMA Parameters 
+
+Approximation: TRUE 
+=== Model Info (search bounds, auto=true) ===
+{ auto: true, p: 2, d: 1, q: 2, P: 0, D: 0, Q: 0, s: 0 }
+
+=== Last 5 history points ===
+2025-10-16 -> 193.900
+2025-10-17 -> 187.500
+2025-10-18 -> 166.000
+2025-10-19 -> 97.000
+2025-10-20 -> 163.600
+
+=== Forecast (next 11 days) ===
+2025-10-21 -> pred=98.569, error≈34.111
+2025-10-22 -> pred=92.265, error≈38.782
+2025-10-23 -> pred=61.757, error≈39.487
+2025-10-24 -> pred=107.849, error≈39.615
+2025-10-25 -> pred=104.207, error≈39.645
+2025-10-26 -> pred=110.269, error≈39.654
+2025-10-27 -> pred=100.101, error≈39.657
+2025-10-28 -> pred=106.044, error≈39.658
+2025-10-29 -> pred=101.701, error≈39.658
+2025-10-30 -> pred=123.413, error≈39.658
+2025-10-31 -> pred=99.645, error≈39.658
+
+=== Evaluation on test set (2025-10-21 → 2025-10-31) ===
+Baseline value: 163.600
+Baseline  - MAE: 22.08, RMSE: 29.05, MAPE: 18.11%
+ARIMA     - MAE: 46.55, RMSE: 52.62, MAPE: 30.93%

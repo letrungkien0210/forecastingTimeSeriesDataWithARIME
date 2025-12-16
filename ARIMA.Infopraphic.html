@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giải Mã ARIMA: Dự Báo Sử Dụng Nước</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Palette: Vibrant Tech (Indigo, Cyan, Pink) -->
+    <!-- 
+        Palette Name: Vibrant Future
+        Colors: 
+        - Primary (Indigo): #4338ca
+        - Secondary (Cyan): #06b6d4
+        - Accent (Pink): #ec4899
+        - Background: #f3f4f6
+        - Card: #ffffff
+    -->
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Max width constraint */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 400px;
+        }
+        @media (max-width: 640px) {
+            .chart-container {
+                height: 250px;
+            }
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #4338ca, #06b6d4, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card-hover {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Custom Icon Styling (NO SVG) */
+        .icon-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 0.75rem;
+        }
+    </style>
+</head>
+<body class="pb-12">
+
+    <!-- Section 1: Header / Hook -->
+    <header class="w-full bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-indigo-800">DataScience<span class="text-cyan-500">Viz</span></h1>
+            <span class="text-sm font-medium text-gray-500">Time Series Forecasting</span>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 mt-8 space-y-12">
+
+        <!-- Intro -->
+        <section class="text-center space-y-4">
+            <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+                Dự Báo Tương Lai: <br class="hidden md:block" />
+                <span class="gradient-text">Mô Hình ARIMA & Dữ Liệu Nước</span>
+            </h2>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                Làm thế nào để biết tháng sau hóa đơn nước sẽ tăng hay giảm? 
+                Chúng ta không dùng quả cầu pha lê, chúng ta dùng thống kê. 
+                Chào mừng bạn đến với thế giới của <strong>ARIMA</strong>.
+            </p>
+        </section>
+
+        <!-- Section 2: What is ARIMA? (Inform/Organize) -->
+        <section>
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 border-l-4 border-indigo-600 pl-3">1. ARIMA Là Gì?</h3>
+                <p class="mt-2 text-gray-600">
+                    ARIMA giống như một "cỗ máy thời gian" toán học. Nó nhìn vào quá khứ để vẽ nên tương lai. 
+                    Tên của nó là viết tắt của 3 thành phần chính giúp xử lý các tín hiệu nhiễu loạn trong dữ liệu.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- AR Card -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover border-t-4 border-indigo-600">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="icon-box bg-indigo-100 text-indigo-600">↺</div>
+                        <h4 class="text-xl font-bold text-indigo-700">AR</h4>
+                    </div>
+                    <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">AutoRegressive (Tự Hồi Quy)</p>
+                    <p class="text-gray-700">
+                        <strong>"Hôm nay giống hôm qua".</strong><br>
+                        Nếu hôm qua bạn dùng nhiều nước, khả năng cao hôm nay cũng vậy. AR sử dụng chính giá trị trong quá khứ để dự đoán hiện tại.
+                    </p>
+                </div>
+
+                <!-- I Card -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover border-t-4 border-cyan-500">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="icon-box bg-cyan-100 text-cyan-600">📉</div>
+                        <h4 class="text-xl font-bold text-cyan-600">I</h4>
+                    </div>
+                    <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">Integrated (Tích Phân/Sai Phân)</p>
+                    <p class="text-gray-700">
+                        <strong>"Làm phẳng con đường".</strong><br>
+                        Dữ liệu thường có xu hướng tăng dần (trend). 'I' giúp loại bỏ xu hướng đó bằng cách lấy ngày hôm nay trừ đi ngày hôm qua, để dữ liệu ổn định hơn.
+                    </p>
+                </div>
+
+                <!-- MA Card -->
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover border-t-4 border-pink-500">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="icon-box bg-pink-100 text-pink-600">⚖️</div>
+                        <h4 class="text-xl font-bold text-pink-600">MA</h4>
+                    </div>
+                    <p class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">Moving Average (Trung Bình Trượt)</p>
+                    <p class="text-gray-700">
+                        <strong>"Học từ sai lầm".</strong><br>
+                        Nếu hôm qua mô hình dự đoán sai một chút, MA sẽ lấy phần "sai số" (error) đó để điều chỉnh cho dự đoán ngày mai chính xác hơn.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: The Data (Real Data Visualization) -->
+        <section>
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 border-l-4 border-indigo-600 pl-3">2. Câu Chuyện Từ Dữ Liệu Thực Tế</h3>
+                <p class="mt-2 text-gray-600">
+                    Đây là dữ liệu từ file đính kèm (tháng 9 và tháng 10 năm 2025) của đồng hồ ABB Aquamaster tổ chức ADEN. Bạn có thể thấy sự biến động rõ rệt: có những ngày dùng rất ít (57 khối) và những ngày đột biến (206 khối). ARIMA sinh ra để hiểu sự "nhảy múa" này.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-4 md:p-8">
+                <div class="chart-container">
+                    <canvas id="waterUsageChart"></canvas>
+                </div>
+                <div class="mt-4 flex flex-wrap gap-4 justify-center text-sm text-gray-500">
+                    <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-indigo-500 mr-2"></span> Dữ liệu thực tế</div>
+                    <div class="flex items-center"><span class="w-3 h-3 rounded-full bg-pink-500 mr-2"></span> Xu hướng (Trend)</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: How It Works (Process) -->
+        <section>
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 border-l-4 border-cyan-500 pl-3">3. Quy Trình Hoạt Động</h3>
+                <p class="mt-2 text-gray-600">
+                    ARIMA không đoán mò. Nó hoạt động theo một quy trình 3 bước nghiêm ngặt để biến dữ liệu hỗn loạn thành con số có ý nghĩa.
+                </p>
+            </div>
+
+            <!-- Steps Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="relative pl-8 md:pl-0">
+                    <div class="hidden md:block absolute -right-6 top-8 text-3xl text-gray-300">➔</div>
+                    <div class="md:hidden absolute left-2 top-8 w-0.5 h-full bg-gray-200"></div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <span class="inline-block px-3 py-1 bg-indigo-600 text-white text-xs font-bold rounded-full mb-3">Bước 1</span>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">Kiểm tra tính "Dừng" (Stationarity)</h4>
+                        <p class="text-gray-600 text-sm">
+                            ARIMA không thích sự thay đổi đột ngột về trung bình. Nếu dữ liệu tăng mãi (trend), chúng ta dùng kỹ thuật sai phân (trừ đi ngày trước) để làm nó phẳng lại.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative pl-8 md:pl-0">
+                    <div class="hidden md:block absolute -right-6 top-8 text-3xl text-gray-300">➔</div>
+                    <div class="md:hidden absolute left-2 top-8 w-0.5 h-full bg-gray-200"></div>
+
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <span class="inline-block px-3 py-1 bg-cyan-600 text-white text-xs font-bold rounded-full mb-3">Bước 2</span>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">Chọn tham số (p, d, q)</h4>
+                        <p class="text-gray-600 text-sm">
+                            Chúng ta tìm bộ 3 số thần thánh:
+                            <br>• <strong>p:</strong> Nhìn lại bao nhiêu ngày quá khứ?
+                            <br>• <strong>d:</strong> Trừ bao nhiêu lần để làm phẳng?
+                            <br>• <strong>q:</strong> Sửa bao nhiêu lỗi sai trong quá khứ?
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative pl-8 md:pl-0">
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <span class="inline-block px-3 py-1 bg-pink-600 text-white text-xs font-bold rounded-full mb-3">Bước 3</span>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2">Dự Báo (Forecast)</h4>
+                        <p class="text-gray-600 text-sm">
+                            Sau khi mô hình học được "nhịp điệu" của việc dùng nước, nó sẽ tự động chạy tiếp nhịp điệu đó vào tương lai để đưa ra con số dự đoán.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Why Water Meter Data? (Comparison) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-800 border-l-4 border-pink-500 pl-3 mb-4">4. Tại Sao Chọn ARIMA Cho Đồng Hồ Nước?</h3>
+                <p class="text-gray-600 mb-4">
+                    Không phải dữ liệu nào cũng dùng được ARIMA. Nhưng dữ liệu nước là <strong>"ứng cử viên hoàn hảo"</strong> vì:
+                </p>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2 text-xl">✓</span>
+                        <span class="text-gray-700"><strong>Thói quen lặp lại:</strong> Con người sinh hoạt theo chu kỳ (tắm sáng, nấu cơm tối, giặt đồ cuối tuần).</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2 text-xl">✓</span>
+                        <span class="text-gray-700"><strong>Tính mùa vụ ngắn hạn:</strong> Dữ liệu nước thường có tính chu kỳ tuần (Weekly Seasonality) rất rõ.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2 text-xl">✓</span>
+                        <span class="text-gray-700"><strong>Ít nhiễu loạn ngẫu nhiên:</strong> So với giá chứng khoán (bị ảnh hưởng bởi tin tức), việc dùng nước ổn định hơn nhiều.</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h4 class="text-center font-bold text-gray-500 mb-4 text-sm uppercase">So sánh độ phù hợp với ARIMA</h4>
+                <div class="chart-container" style="height: 300px;">
+                    <canvas id="suitabilityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Pros & Cons -->
+        <section class="bg-indigo-50 rounded-2xl p-8">
+            <h3 class="text-2xl font-bold text-center text-gray-800 mb-8">5. Thuận Lợi & Khó Khăn</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Pros -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border-t-4 border-green-500">
+                    <h4 class="text-xl font-bold text-green-600 mb-4 flex items-center">
+                        <span class="text-2xl mr-2">👍</span> Thuận Lợi
+                    </h4>
+                    <ul class="space-y-3 text-gray-600 text-sm">
+                        <li class="flex items-start">
+                            <span class="font-bold text-black mr-2">•</span>
+                            Dễ hiểu và dễ giải thích cho người quản lý.
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold text-black mr-2">•</span>
+                            Chỉ cần dữ liệu lịch sử của chính nó (không cần dữ liệu thời tiết, kinh tế bên ngoài).
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold text-black mr-2">•</span>
+                            Rất giỏi trong việc nắm bắt các xu hướng ngắn hạn (dự báo 7-30 ngày tới).
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Cons -->
+                <div class="bg-white rounded-xl p-6 shadow-sm border-t-4 border-red-500">
+                    <h4 class="text-xl font-bold text-red-500 mb-4 flex items-center">
+                        <span class="text-2xl mr-2">👎</span> Khó Khăn
+                    </h4>
+                    <ul class="space-y-3 text-gray-600 text-sm">
+                        <li class="flex items-start">
+                            <span class="font-bold text-black mr-2">•</span>
+                            <strong>Khó xử lý đột biến:</strong> Nếu vỡ ống nước hay có tiệc tùng đột xuất, ARIMA sẽ bị "bối rối".
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold text-black mr-2">•</span>
+                            <strong>Cần dữ liệu dài:</strong> Cần ít nhất 30-50 điểm dữ liệu quá khứ để chạy ổn định.
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold text-black mr-2">•</span>
+                            <strong>Cập nhật chậm:</strong> Nó phản ứng chậm với những thay đổi hành vi mới (ví dụ: nhà có thêm người ở).
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-8 mt-12 text-center text-sm">
+        <p>© 2025 Data Science Explanation. Generated based on provided Water Usage Dataset.</p>
+    </footer>
+
+    <!-- HTML Comment Summary -->
+    <!-- 
+        Source Material Analysis:
+        - Input: Daily water usage data (CSV snippet provided).
+        - Structure: Time series data with dates and float values showing usage.
+        - Core Concept: ARIMA modeling for forecasting.
+        
+        Narrative Plan:
+        1. Intro: Hook the user with the concept of predicting bills.
+        2. Definition: Break down A-R-I-M-A into simple non-tech analogies (Habit, Smoothing, Error Correction).
+        3. Real Data Visualization: Show the actual provided CSV data to ground the theory in reality.
+        4. Process: Explain the workflow (Stationarity -> Parameters -> Forecast).
+        5. Suitability: Why water? (Seasonality/Habit).
+        6. Pros/Cons: Balanced view.
+
+        Chart Selection (NO SVG Confirmed):
+        1. Line Chart (Chart.js): Shows the raw water usage trends over time (Goal: Change/Inform).
+        2. Bar Chart (Chart.js): Compares ARIMA suitability across different data types (Goal: Compare).
+        3. Concept Cards (HTML/CSS): Used for AR, I, MA definitions instead of charts to keep it clean.
+        4. Step List (HTML/CSS): Used for process flow (Goal: Organize).
+    -->
+
+    <script>
+        // --- UTILITY: Label Wrapping for Chart.js ---
+        function splitLabel(str, maxLen = 15) {
+            if (str.length <= maxLen) return str;
+            const words = str.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if (currentLine.length + 1 + words[i].length <= maxLen) {
+                    currentLine += ' ' + words[i];
+                } else {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // --- DATA: Processed from provided CSV snippet ---
+        // Dates: 2025-09-01 to 2025-09-19
+        const rawDates = [
+            '2025-09-01', '2025-09-02', '2025-09-03', '2025-09-04', '2025-09-05', 
+            '2025-09-06', '2025-09-07', '2025-09-08', '2025-09-09', '2025-09-10', 
+            '2025-09-11', '2025-09-12', '2025-09-13', '2025-09-14', '2025-09-15', 
+            '2025-09-16', '2025-09-17', '2025-09-18', '2025-09-19'
+        ];
+        
+        const rawUsage = [
+            102.1, 57.2, 166.2, 173.3, 174.0, 
+            144.0, 99.3, 206.3, 196.3, 179.4, 
+            177.7, 180.1, 152.1, 97.4, 196.7, 
+            187.4, 198.4, 181.7, 191.9
+        ];
+
+        // Format dates for labels (e.g., "01 Sep")
+        const formattedDates = rawDates.map(d => {
+            const date = new Date(d);
+            return `${date.getDate()} Sep`;
+        });
+
+        // --- CHART 1: Water Usage Trends (Line Chart) ---
+        const ctxWater = document.getElementById('waterUsageChart').getContext('2d');
+        
+        // Create a gradient for the line
+        const gradientWater = ctxWater.createLinearGradient(0, 0, 0, 400);
+        gradientWater.addColorStop(0, 'rgba(67, 56, 202, 0.5)'); // Indigo
+        gradientWater.addColorStop(1, 'rgba(67, 56, 202, 0.0)');
+
+        new Chart(ctxWater, {
+            type: 'line',
+            data: {
+                labels: formattedDates,
+                datasets: [{
+                    label: 'Sử Dụng Nước (Lít/Khối)',
+                    data: rawUsage,
+                    borderColor: '#4338ca', // Indigo 700
+                    backgroundColor: gradientWater,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#ec4899', // Pink accent for points
+                    pointBorderColor: '#fff',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4 // Curve the line slightly
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 14 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) return label.join(' ');
+                                return label;
+                            },
+                            label: function(context) {
+                                return `Usage: ${context.parsed.y} units`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e5e7eb',
+                            borderDash: [5, 5]
+                        },
+                        title: {
+                            display: true,
+                            text: 'Khối Lượng Sử Dụng'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- CHART 2: Suitability Comparison (Bar Chart) ---
+        const ctxSuit = document.getElementById('suitabilityChart').getContext('2d');
+        
+        const suitabilityLabels = [
+            'Đồng Hồ Nước (Water)', 
+            'Nhiệt Độ (Temperature)', 
+            'Doanh Số Bán Lẻ (Retail Sales)', 
+            'Giá Chứng Khoán (Stock Price)', 
+            'Xổ Số (Lottery)'
+        ];
+        
+        // Wrap labels
+        const wrappedSuitLabels = suitabilityLabels.map(l => splitLabel(l, 12));
+
+        new Chart(ctxSuit, {
+            type: 'bar',
+            data: {
+                labels: wrappedSuitLabels,
+                datasets: [{
+                    label: 'Độ Phù Hợp Với ARIMA (Score / 10)',
+                    data: [9.5, 9.0, 8.5, 4.0, 1.0],
+                    backgroundColor: [
+                        '#4338ca', // Water - High
+                        '#6366f1', // Temp - High
+                        '#818cf8', // Sales - Med
+                        '#fbbf24', // Stocks - Low (Warning color)
+                        '#ef4444'  // Lottery - No (Red)
+                    ],
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y', // Horizontal Bar for better label reading
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) return label.join(' ');
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        max: 10,
+                        grid: { display: false },
+                        title: { display: true, text: 'Điểm Phù Hợp' }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

@@ -10,7 +10,8 @@ import path from "path";
 const ARIMA = require("arima");
 
 
-const trainingDataPath = "./data/two_months/trainningData-grouped-by-day.csv";
+const trainingDataPath = "./data/3_months/trainningData-grouped-by-day.csv";
+const testingDataPath = "./data/3_months/testingData-grouped-by-day.csv";
 /**
  * Defines the structure of a single time series point
  */
@@ -231,6 +232,31 @@ async function main() {
           `pred=${f.value.toFixed(3)}, error≈${f.error.toFixed(3)}`
       );
     });
+
+    // === Evaluate on test set ===
+    const testPath = testingDataPath;
+    const testPoints = loadCsvTimeSeries(testPath);
+    const actual = testPoints.map(p => p.value);
+
+    // ARIMA forecast array (giá trị đã log ở trên)
+    const arimaPred = result.forecast.map(f => f.value);
+
+    // Baseline: dùng giá trị cuối cùng của training (points)
+    const lastTrainValue = points[points.length - 1].value;
+    const baselinePred = actual.map(() => lastTrainValue);
+
+    const maeArima  = meanAbsoluteError(actual, arimaPred);
+    const rmseArima = rootMeanSquaredError(actual, arimaPred);
+    const mapeArima = meanAbsolutePercentageError(actual, arimaPred);
+
+    const maeBase  = meanAbsoluteError(actual, baselinePred);
+    const rmseBase = rootMeanSquaredError(actual, baselinePred);
+    const mapeBase = meanAbsolutePercentageError(actual, baselinePred);
+
+    console.log("\n=== Evaluation on test set (2025-10-21 → 2025-10-31) ===");
+    console.log("Baseline value:", lastTrainValue.toFixed(3));
+    console.log(`Baseline  - MAE: ${maeBase.toFixed(2)}, RMSE: ${rmseBase.toFixed(2)}, MAPE: ${mapeBase.toFixed(2)}%`);
+    console.log(`ARIMA     - MAE: ${maeArima.toFixed(2)}, RMSE: ${rmseArima.toFixed(2)}, MAPE: ${mapeArima.toFixed(2)}%`);
   } catch (err) {
     console.error("Error:", err);
   }
@@ -241,6 +267,36 @@ async function main() {
 if (require.main === module) {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   main();
+}
+
+function meanAbsoluteError(actual: number[], predicted: number[]): number {
+  const n = actual.length;
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    sum += Math.abs(actual[i] - predicted[i]);
+  }
+  return sum / n;
+}
+
+function rootMeanSquaredError(actual: number[], predicted: number[]): number {
+  const n = actual.length;
+  let sumSq = 0;
+  for (let i = 0; i < n; i++) {
+    const diff = actual[i] - predicted[i];
+    sumSq += diff * diff;
+  }
+  return Math.sqrt(sumSq / n);
+}
+
+function meanAbsolutePercentageError(actual: number[], predicted: number[]): number {
+  const n = actual.length;
+  let sumPct = 0;
+  for (let i = 0; i < n; i++) {
+    if (actual[i] !== 0) {
+      sumPct += Math.abs((actual[i] - predicted[i]) / actual[i]);
+    }
+  }
+  return (sumPct / n) * 100;
 }
 
 export { loadCsvTimeSeries, runAutoArimaForecast, ForecastResult };
